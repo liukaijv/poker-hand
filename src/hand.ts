@@ -6,6 +6,8 @@ export abstract class Hand {
 
     protected abstract _rank: number;
 
+    protected _isPossible: boolean = false;
+
     public cardPool: Card[] = [];
 
     protected suits: { [key: string]: Card[] } = {};
@@ -39,6 +41,8 @@ export abstract class Hand {
 
         this.values.reverse();
 
+        this._isPossible = this.make();
+
     }
 
     public get name(): string {
@@ -50,7 +54,7 @@ export abstract class Hand {
     }
 
     public get isPossible(): boolean {
-        return this.make();
+        return this._isPossible;
     }
 
     public compare(h: Hand): number {
@@ -99,13 +103,10 @@ export abstract class Hand {
             if (excluding.indexOf(c) < 0) {
                 return true;
             }
-        })
+        });
     }
 
     public toString(): string {
-        if (!this.cards.length) {
-            this.make();
-        }
         return this.cards.map(c => c.toString()).join(',');
     }
 
@@ -114,7 +115,7 @@ export abstract class Hand {
         let highestRank = Math.max.apply(Math, byRank);
         hands = hands.filter(h => h.rank === highestRank);
         return hands.filter(h => {
-            !hands.some(a => h.losesTo(a));
+            return !hands.some(a => h.losesTo(a));
         });
     }
 
@@ -280,12 +281,12 @@ export class TwoPair extends Hand {
 
     protected make(): boolean {
         for (let cards of this.values) {
-            if (cards && cards.length === 2) {
-                this.cards = cards;
-            } else if (this.cards.length > 0 && cards && cards.length === 2) {
+            if (this.cards.length > 0 && cards && cards.length === 2) {
                 this.cards = this.cards.concat(cards);
                 this.cards.push(this.nextHighest()[0]);
                 break;
+            } else if (cards && cards.length === 2) {
+                this.cards = this.cards.concat(cards);
             }
         }
         return this.cards.length === 5;
