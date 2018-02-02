@@ -120,7 +120,7 @@ export abstract class Hand {
     }
 
     public static make(cards: string[] | Card[]): Hand {
-        let hands: any[] = [StraightFlush, FourOfAKind, FullHouse, Flush, Straight, ThreeOfAKind, TwoPair, OnePair, HighCard];
+        let hands: any[] = [RoyalFlush, StraightFlush, FourOfAKind, FullHouse, Flush, Straight, ThreeOfAKind, TwoPair, OnePair, HighCard];
         let result: Hand;
         for (let hand of hands) {
             result = new hand(cards);
@@ -131,6 +131,20 @@ export abstract class Hand {
         return result;
     }
 
+}
+
+export class RoyalFlush extends Hand {
+
+    protected _name: string = 'Royal Flush';
+    protected _rank: number = 9;
+
+    protected make(): boolean {
+        let straightFlush: Hand = new StraightFlush(this.cardPool);
+        if (straightFlush.isPossible) {
+            this.cards = straightFlush.cards;
+        }
+        return this.cards.length === 5 && this.cards[0].value === 'A';
+    }
 }
 
 export class StraightFlush extends Hand {
